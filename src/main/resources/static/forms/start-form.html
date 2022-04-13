@@ -1,0 +1,46 @@
+<!--
+You can use this form through Camunda Tasklist
+by setting the formKey of a BPMN Start Event to:
+embedded:/forms/start-form.html
+-->
+
+<form class="form-horizontal" role="form">
+  <div class="form-group">
+    <label for="name" class="col-sm-2 control-label">Your Name</label>
+    <div class="col-sm-10">
+      <input type="text"
+             name="name"
+             cam-variable-name="name"
+             cam-variable-type="String"
+             required
+             class="form-control" />
+    </div>
+  </div>
+
+  <script cam-script type="text/form-script">
+    // custom JavaScript goes here
+
+    inject(['Uri', function(Uri) {
+
+      camForm.on('submit', function() {
+        // this callback is executed when the form is submitted, *before* the submit request to
+        // the server is executed
+
+        // store data in domain service and retrieve business key
+        $.ajax({
+          url: Uri.appUri('/rest/engine/:engine/history/activity-instance/count'),
+          method: 'POST',
+          async: false,
+          data: JSON.stringify({ finished: true }),
+          contentType: 'application/json',
+          dataType: 'json',
+          success: function (data) {
+            camForm.businessKey = data.count
+          }
+        });
+
+      });
+
+    }]);
+  </script>
+</form>
